@@ -1,0 +1,247 @@
+---
+title: "Geog533 Lab 8"
+author: "Yalin Yang"
+output: 
+  html_notebook:
+    toc: TRUE
+    toc_float: TRUE
+---
+
+Complete the following exercises in Chapter 8 (Introduction to Regression Analysis) of the textbook [R] pages 247-250. 
+
+## Question 1
+
+This is Exercise 1 in Chapter 8 of the Textbook [R].
+
+A regression of weekly shopping trip frequency on annual income (data entered in thousands of dollars) is performed on data collected from 24 respondents. The results are summarized below:
+
+* Intercept: 0.46
+* Slope: 0.19
+
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+|Regression|     `r 2.3-1.7` |          1         | `r (2.3-1.7)/1`|`r (2.3-1.7)/1/(1.7/(24-2))`|
+| Residual |       1.7       |        `r 24-2`    | `r 1.7/(24-2)` |                 |
+| Total    |       2.3       |        `r 24-1`    |                |                 |
+
+
+### Question 1(a)
+Fill in the blanks in the ANOVA table.
+
+```{r}
+```
+
+
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+|Regression|  `r 2.3-1.7` |          1            | `r (2.3-1.7)/1`|`r (2.3-1.7)/1/(1.7/(24-2))`|
+| Residual |       1.7       |        `r 24-2`    | `r 1.7/(24-2)` |                 |
+| Total    |       2.3       |        `r 24-1`    |                |                 |
+
+
+
+### Question 1(b)
+What is the predicted number of weekly shopping trips for someone making $50,000/year?
+```{r}
+Shop_time <- 0.19*50+0.46
+print(paste('the predicted number of weekly shopping trips is',Shop_time))
+```
+
+
+### Question 1(c)
+In words, what is the meaning of the coefficient 0.19?
+```{r}
+print('There was a positive correlation between independent variables and dependent variables, when independent variables changes 1, the dependent variable will change 0.19')
+```
+
+
+
+### Question 1(d)
+Is the regression coefficient significantly different from zero? How do you know?
+```{r}
+one_F <- (2.3-1.7)/1/(1.7/(24-2))
+if(one_F > qf(0.95,df = 1,df2 = 22))
+{
+  print('it is significant beacuse the F value in the rejection area')
+  
+}
+```
+
+
+
+### Question 1(e)
+What is the value of the correlation coefficient?
+```{r}
+one_F <- (2.3-1.7)/1/(1.7/(24-2))
+r2 <- (24-2)/one_F + 1
+R <- sqrt(1/r2)
+R
+```
+
+
+
+
+
+## Question 2
+
+This is Exercise 6 in Chapter 8 of the Textbook [R].
+
+The following data are collected in an effort to determine whether snowfall is dependent upon elevation: 
+
+| Snowfall (inches) | Elevation (feet) |
+|-------------------|------------------|
+|       36          |       400        |
+|       78          |       800        |
+|       11          |       200        |
+|       45          |       675        |
+
+Using R, show your work on exercises (a) through (g).
+
+### Question 2(a)
+Find the regression coefficients (the intercept and the slope coefficient).
+```{r}
+y <- c(36,78,11,45)
+x <- c(400,800,200,675)
+m <- lm(y~x)
+slope <- m$coefficients[2][[1]]
+intercept <- m$coefficients[1][[1]]
+print(paste('intercept is ',round(intercept,4) ,'and slope is ',round(slope,4)))
+```
+
+
+### Question 2(b)
+Estimate the standard error of the residuals about the regression line.
+```{r}
+a <- summary(m)
+summary(m)
+sd.err<- sqrt(sum((a$residuals - mean(a$residuals))^2)/(4-2))
+print(paste('the standard error of the residuals is ',round(sd.err,digits = 5)))
+
+```
+
+
+### Question 2(c)
+Test the hypothesis that the regression coefficient associated with the independent variables is equal to zero. Also place a 95% confidence interval on the regression coefficient.
+```{r}
+result <- anova(m)
+if (result$`Pr(>F)`[1] > 0.05)
+{
+  print('it is not signigicant')
+}
+```
+
+
+### Question 2(d)
+Find the value of $r^2$.
+```{r}
+result.err<- cor.test(x,y,method = 'pearson')
+R <- (result.err$estimate[[1]]^2)
+R
+```
+
+
+### Question 2(e)
+Make a table of the observed values, predicted values, and the residuals.
+```{r}
+b <- summary(m)
+df <- data.frame(y,fitted(m),b$residuals)
+head(df)
+```
+
+
+### Question 2(f)
+Prepare an analysis of variance table portraying the regression results.
+```{r}
+anova(m)
+```
+
+
+|          | Sum of squares  | Degrees of freedom |  Mean square   |       *F*       |
+|----------|-----------------|--------------------|----------------|-----------------|
+|Regression|      195094     |         1          |    195094      |       16.173    |
+| Residual |       24125     |        2           |      12063     |                 |
+| Total    |      219219     |                    |                |                 |
+
+### Question 2(g)
+Graph the data and the regression line.
+```{r}
+plot(x,y)
+abline(m,col='red')
+```
+
+
+
+
+## Question 3
+
+This is Exercise 10 in Chapter 8 of the Textbook [R].
+
+Use R and the [Milwaukee dataset](http://spatial.binghamton.edu/geog533/data/Milwaukee_Sales.csv) to:
+
+### Problem
+perform a regression using sales price as the dependent variable and lot size as the independent variable.
+
+### Solution
+```{r}
+url = "http://spatial.binghamton.edu/geog533/data/Milwaukee_Sales.csv"
+df <- read.csv(file = url)
+X <- df$SalePrice
+Y <- df$LotSize
+plot(X,Y)
+M<- lm(Y~X)
+abline(M,col='red')
+```
+
+
+
+## Question 4
+
+This is Exercise 11 in Chapter 8 of the Textbook [R].
+
+Use R and the Hypothetical [UK Housing Prices dataset](http://spatial.binghamton.edu/geog533/data/UK_Housing.csv) to:
+
+### Question 4(a) 
+perform a regression using house price as the dependent variable, and number of bedrooms as the independent variable;
+
+```{r}
+url = "http://spatial.binghamton.edu/geog533/data/UK_Housing.csv"
+df_new <- read.csv(file = url)
+p <- df_new$price
+o <- df_new$bedrooms
+m <- lm(p~o)
+equa<- paste('Y = ',round(m[[1]][[1]],digits = 0),'+',round(m[[1]][[2]],digits = 0),'X')
+plot(o,p,main = equa,ylab = 'The price of House',xlab = 'The number of bedrooms')
+abline(m,col='red')
+```
+
+
+### Question 4(b) 
+(b) repeat part (a), using the number of bathrooms as the independent variable, and comment on the results.
+```{r}
+df_new <- read.csv(file = url)
+j <- df_new$price
+k <- df_new$bathrooms
+m_new <- lm(j~k)
+equa_new <- paste('Y = ',round(m_new[[1]][[1]],digits = 0),'+',round(m_new[[1]][[2]],digits = 0),'X')
+plot(k,j,main = equa_new,ylab = 'The price of House',xlab = 'The number of bathrooms')
+abline(m,col='red')
+```
+
+
+## Question 5
+Download the [hometown.csv](http://spatial.binghamton.edu/geog533/data/hometown.csv), append your name and hometown coordinates to the csv, then use [leaflet](https://rstudio.github.io/leaflet/) to create a web map (10 pt.)
+
+```{r}
+url = 'http://spatial.binghamton.edu/geog533/data/hometown.csv'
+df_yyl <- read.csv(file = url)
+fix <- c('yang','yalin','grads','106.481,29.590','106.481','29.590','','','')
+df_yyl <- as.data.frame(rbind(as.matrix(df_yyl) , fix))
+df_yyl[25:34,]
+library(leaflet)
+
+m <- leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=106.481, lat=29.590, popup="The birthplace of R")
+m 
+```
+
